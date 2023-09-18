@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "packetdiscard",
+	"version": "${version}",
+	"name": "PacketDiscard",
+	"description": "This is a server-side mod that discards (doesn't send) 50% of packets the server tries to send, except for the essential ones like login packets, Chunk load packets and keep-alive packets.",
+	"authors": [
+		"gstaaij"
+	],
+	"contact": {
+		"sources": "https://github.com/gstaaij/packetdiscard"
+	},
+	"license": "LGPL-3.0",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"gstaaij.packetdiscard.PacketDiscard"
+		]
+	},
+	"mixins": [
+		"packetdiscard.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.22",
+		"minecraft": "~1.19.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"packetignore": "*"
+	}
+}

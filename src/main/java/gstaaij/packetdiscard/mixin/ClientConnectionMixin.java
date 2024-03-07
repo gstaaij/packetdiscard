@@ -1,3 +1,6 @@
+// Copyright (c) 2023-2024 gstaaij
+// This code is licensed under LGPLv3
+
 package gstaaij.packetdiscard.mixin;
 
 import net.minecraft.network.ClientConnection;

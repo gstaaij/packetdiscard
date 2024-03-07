@@ -1,5 +1,5 @@
 // Copyright (c) 2023-2024 gstaaij
-// This code is licensed under LGPLv3
+// This code is licensed under LGPL-3.0-only
 
 package gstaaij.packetdiscard;
 

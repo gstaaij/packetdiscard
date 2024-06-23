@@ -21,7 +21,6 @@ import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 
 import java.util.Random;
 
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,10 +35,6 @@ import gstaaij.packetdiscard.PacketDiscard;
 public class ClientConnectionMixin {
     // Get a private field and a method needed for some stuff
     @Shadow @Final private NetworkSide side;
-    @Shadow
-    private void sendImmediately(Packet<?> packet, @Nullable PacketCallbacks callbacks, boolean flush) {
-    }
-    
 
     // A random number generator
     @Unique

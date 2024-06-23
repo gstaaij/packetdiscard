@@ -7,21 +7,27 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.network.packet.s2c.common.KeepAliveS2CPacket;
+import net.minecraft.network.packet.s2c.config.DynamicRegistriesS2CPacket;
+import net.minecraft.network.packet.s2c.config.ReadyS2CPacket;
+import net.minecraft.network.packet.s2c.config.SelectKnownPacksS2CPacket;
 import net.minecraft.network.packet.s2c.login.LoginCompressionS2CPacket;
 import net.minecraft.network.packet.s2c.login.LoginDisconnectS2CPacket;
 import net.minecraft.network.packet.s2c.login.LoginHelloS2CPacket;
 import net.minecraft.network.packet.s2c.login.LoginQueryRequestS2CPacket;
 import net.minecraft.network.packet.s2c.login.LoginSuccessS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkRenderDistanceCenterS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkSentS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.StartChunkSendS2CPacket;
 
 import java.util.Random;
 
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,10 +42,6 @@ import gstaaij.packetdiscard.PacketDiscard;
 public class ClientConnectionMixin {
     // Get a private field and a method needed for some stuff
     @Shadow @Final private NetworkSide side;
-    @Shadow
-    private void sendImmediately(Packet<?> packet, @Nullable PacketCallbacks callbacks, boolean flush) {
-    }
-    
 
     // A random number generator
     @Unique
@@ -68,9 +70,19 @@ public class ClientConnectionMixin {
             packet instanceof ChunkSentS2CPacket ||         // Also needed to see the chunks
             packet instanceof PlayerRespawnS2CPacket ||     // Needed to be able to respawn consistently
             packet instanceof DisconnectS2CPacket ||        // Needed to be able to disconnect cleanly
-            packet instanceof KeepAliveS2CPacket            // Needed to prevent everyone getting Timed Out every so often
+            packet instanceof KeepAliveS2CPacket ||         // Needed to prevent everyone getting Timed Out every so often
+            // 1.20.5 packets:
+            packet instanceof StartChunkSendS2CPacket ||    // Needed for faster "Loading terrain..."
+            packet instanceof ReadyS2CPacket ||             // If this is discarded, you'll be stuck on "Joining world..."
+            packet instanceof SelectKnownPacksS2CPacket ||  // Same as ReadyS2CPacket
+            packet instanceof DynamicRegistriesS2CPacket || // Same as ReadyS2CPacket
+            packet instanceof GameStateChangeS2CPacket ||   // Required for getting into the world more quickly
+            packet instanceof ChunkRenderDistanceCenterS2CPacket || // Required for loading chunks properly
+            packet instanceof CustomPayloadS2CPacket        // Same as ReadyS2CPacket
         ) {
             PacketDiscard.LOGGER.debug("Essential packet " + packet.getClass().getName() + " to be sent, not discarding.");
+            if (packet instanceof CustomPayloadS2CPacket)
+                PacketDiscard.LOGGER.debug("CustomPayloadS2CPacket with payload: " + ((CustomPayloadS2CPacket) packet).payload().getClass().getName());
             return;
         }
         // Don't discard sent package when you're the client
